@@ -28,6 +28,7 @@ typedef struct stepper_t {
 
   stepper_status_t status;
   uint8_t speed;
+  stepper_step_size_t step_size;
 } stepper_t;
 /*******************************************************************************
 * Private Data
@@ -99,4 +100,15 @@ stepper_err_t stepper_setSpeed(stepper_descriptor_t handle, uint8_t speed) {
 
 uint8_t stepper_getSpeed(stepper_descriptor_t handle) {
   return steppers[handle].speed;
+}
+
+void stepper_setStepSize(
+  stepper_descriptor_t handle,
+  stepper_step_size_t step_size
+) {
+  steppers[handle].step_size = step_size;
+}
+
+stepper_step_size_t stepper_getStepSize(stepper_descriptor_t handle) {
+  return steppers[handle].step_size;
 }

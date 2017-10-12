@@ -142,6 +142,16 @@ void test_set_speed_throws_error_when_handle_invalid(void)
   );
 }
 
+void test_setStepSize_sets_step_size(void)
+{
+  uint8_t step_size = (stepper_step_size_t)(rand() % 4);
+  uint8_t handle_index = 0;
+
+  _makeStepper(handle_index);
+  stepper_setStepSize(stepper_handles[handle_index], step_size);
+  TEST_ASSERT(stepper_getStepSize(stepper_handles[handle_index]) == step_size);
+}
+
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
