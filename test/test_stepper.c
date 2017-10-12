@@ -25,6 +25,16 @@ static uint8_t step_port;
 static uint8_t step_port_ddr;
 static uint8_t step_pin;
 
+static uint8_t ms1_port;
+static uint8_t ms1_port_ddr;
+static uint8_t ms1_pin;
+static uint8_t ms2_port;
+static uint8_t ms2_port_ddr;
+static uint8_t ms2_pin;
+static uint8_t ms3_port;
+static uint8_t ms3_port_ddr;
+static uint8_t ms3_pin;
+
 stepper_descriptor_t stepper_handles[2];
 /*******************************************************************************
 * Private Function Declarations
@@ -49,6 +59,18 @@ void setUp(void)
   step_port = (uint8_t)rand();
   step_port_ddr = 0;
   step_pin = (1 << (rand() % 8 + 0));
+
+  ms1_port = (uint8_t)rand();
+  ms1_port_ddr = 0;
+  ms1_pin = (1 << (rand() % 8 + 0));
+
+  ms2_port = (uint8_t)rand();
+  ms2_port_ddr = 0;
+  ms2_pin = (1 << (rand() % 8 + 0));
+
+  ms3_port = (uint8_t)rand();
+  ms3_port_ddr = 0;
+  ms3_pin = (1 << (rand() % 8 + 0));
 }
 
 void tearDown(void)
@@ -74,6 +96,15 @@ void test_construct_initializes_hardware_pins_with_individual_ports(void)
 
   TEST_ASSERT(step_port == 0);
   TEST_ASSERT(step_port_ddr == step_pin);
+
+  TEST_ASSERT(ms1_port == 0);
+  TEST_ASSERT(ms1_port_ddr == ms1_pin);
+
+  TEST_ASSERT(ms2_port == 0);
+  TEST_ASSERT(ms2_port_ddr == ms2_pin);
+
+  TEST_ASSERT(ms3_port == 0);
+  TEST_ASSERT(ms3_port_ddr == ms3_pin);
 }
 
 void test_construct_initializes_hardware_pins_with_shared_ports(void)
@@ -94,9 +125,21 @@ void test_construct_initializes_hardware_pins_with_shared_ports(void)
   config.step_port_ddr = &shared_port_ddr;
   config.step_pin = 4;
 
+  config.ms1_port = &shared_port;
+  config.ms1_port_ddr = &shared_port_ddr;
+  config.ms1_pin = 8;
+
+  config.ms2_port = &shared_port;
+  config.ms2_port_ddr = &shared_port_ddr;
+  config.ms2_pin = 16;
+
+  config.ms3_port = &shared_port;
+  config.ms3_port_ddr = &shared_port_ddr;
+  config.ms3_pin = 32;
+
   stepper_construct(config, &stepper_handles[0]);
 
-  TEST_ASSERT(shared_port_ddr == 7);
+  TEST_ASSERT(shared_port_ddr == 63);
   TEST_ASSERT(shared_port == 0);
 }
 
@@ -152,6 +195,16 @@ void test_setStepSize_sets_step_size(void)
   TEST_ASSERT(stepper_getStepSize(stepper_handles[handle_index]) == step_size);
 }
 
+// void test_setStepSize_sets_step_size(void)
+// {
+//   uint8_t step_size = (stepper_step_size_t)(rand() % 4);
+//   uint8_t handle_index = 0;
+//
+//   _makeStepper(handle_index);
+//   stepper_setStepSize(stepper_handles[handle_index], step_size);
+//   TEST_ASSERT(stepper_getStepSize(stepper_handles[handle_index]) == step_size);
+// }
+
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
@@ -168,6 +221,18 @@ stepper_err_t _makeStepper(uint8_t handle_index) {
   config.step_port = &step_port;
   config.step_port_ddr = &step_port_ddr;
   config.step_pin = step_pin;
+
+  config.ms1_port = &ms1_port;
+  config.ms1_port_ddr = &ms1_port_ddr;
+  config.ms1_pin = ms1_pin;
+
+  config.ms2_port = &ms2_port;
+  config.ms2_port_ddr = &ms2_port_ddr;
+  config.ms2_pin = ms2_pin;
+
+  config.ms3_port = &ms3_port;
+  config.ms3_port_ddr = &ms3_port_ddr;
+  config.ms3_pin = ms3_pin;
 
   return stepper_construct(config, &stepper_handles[handle_index]);
 }

@@ -26,6 +26,18 @@ typedef struct stepper_t {
   uint8_t *step_port_ddr;
   uint8_t step_pin;
 
+  uint8_t *ms1_port;
+  uint8_t *ms1_port_ddr;
+  uint8_t ms1_pin;
+
+  uint8_t *ms2_port;
+  uint8_t *ms2_port_ddr;
+  uint8_t ms2_pin;
+
+  uint8_t *ms3_port;
+  uint8_t *ms3_port_ddr;
+  uint8_t ms3_pin;
+
   stepper_status_t status;
   uint8_t speed;
   stepper_step_size_t step_size;
@@ -58,6 +70,18 @@ stepper_err_t stepper_construct(
       steppers[i].step_port_ddr = config.step_port_ddr;
       steppers[i].step_pin = config.step_pin;
 
+      steppers[i].ms1_port = config.ms1_port;
+      steppers[i].ms1_port_ddr = config.ms1_port_ddr;
+      steppers[i].ms1_pin = config.ms1_pin;
+
+      steppers[i].ms2_port = config.ms2_port;
+      steppers[i].ms2_port_ddr = config.ms2_port_ddr;
+      steppers[i].ms2_pin = config.ms2_pin;
+
+      steppers[i].ms3_port = config.ms3_port;
+      steppers[i].ms3_port_ddr = config.ms3_port_ddr;
+      steppers[i].ms3_pin = config.ms3_pin;
+
       *steppers[i].dir_port = 0;
       *steppers[i].dir_port_ddr |= steppers[i].dir_pin;
 
@@ -66,6 +90,15 @@ stepper_err_t stepper_construct(
 
       *steppers[i].step_port = 0;
       *steppers[i].step_port_ddr |= steppers[i].step_pin;
+
+      *steppers[i].ms1_port = 0;
+      *steppers[i].ms1_port_ddr |= steppers[i].ms1_pin;
+
+      *steppers[i].ms2_port = 0;
+      *steppers[i].ms2_port_ddr |= steppers[i].ms2_pin;
+
+      *steppers[i].ms3_port = 0;
+      *steppers[i].ms3_port_ddr |= steppers[i].ms3_pin;
 
       steppers[i].status = STEPPER_STATUS_ACTIVE;
       steppers[i].speed = config.speed;

@@ -32,6 +32,19 @@ typedef struct stepper_attr_t {
   uint8_t *step_port_ddr;
   uint8_t step_pin;
 
+  uint8_t *ms1_port;
+  uint8_t *ms1_port_ddr;
+  uint8_t ms1_pin;
+
+  uint8_t *ms2_port;
+  uint8_t *ms2_port_ddr;
+  uint8_t ms2_pin;
+
+  uint8_t *ms3_port;
+  uint8_t *ms3_port_ddr;
+  uint8_t ms3_pin;
+
+
   uint8_t speed;
 } stepper_attr_t;
 
