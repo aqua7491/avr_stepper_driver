@@ -29,7 +29,7 @@ stepper_descriptor_t stepper_handles[2];
 /*******************************************************************************
 * Private Function Declarations
 *******************************************************************************/
-stepper_err_t _makeStepper(void);
+stepper_err_t _makeStepper(uint8_t handle_index);
 
 /*******************************************************************************
 * Setup and Teardown
@@ -64,7 +64,7 @@ void tearDown(void)
 *******************************************************************************/
 void test_construct_initializes_hardware_pins_with_individual_ports(void)
 {
-  _makeStepper();
+  _makeStepper(0);
 
   TEST_ASSERT(dir_port == 0);
   TEST_ASSERT(dir_port_ddr == dir_pin);
@@ -103,27 +103,36 @@ void test_construct_initializes_hardware_pins_with_shared_ports(void)
 void test_construct_returns_descriptor_thru_ptr(void)
 {
   stepper_handles[0] = 1;
-  _makeStepper();
+  _makeStepper(0);
 
   TEST_ASSERT(stepper_handles[0] == 0);
 }
 
 void test_construct_returns_success_if_steppers_available(void)
 {
-  TEST_ASSERT(_makeStepper() == STEPPER_ERR_NONE);
+  TEST_ASSERT(_makeStepper(0) == STEPPER_ERR_NONE);
 }
 
 void test_construct_returns_err_if_none_available(void)
 {
-  _makeStepper();
-  _makeStepper();
-  TEST_ASSERT(_makeStepper() == STEPPER_ERR_NONE_AVAILABLE);
+  _makeStepper(0);
+  _makeStepper(0);
+  TEST_ASSERT(_makeStepper(0) == STEPPER_ERR_NONE_AVAILABLE);
+}
+
+void test_set_speed_sets_speed(void)
+{
+  uint8_t speed = (uint8_t)rand();
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+  stepper_setSpeed(stepper_handles[handle_index], speed);
+  TEST_ASSERT(stepper_getSpeed(stepper_handles[handle_index]) == speed);
 }
 
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
-stepper_err_t _makeStepper(void) {
+stepper_err_t _makeStepper(uint8_t handle_index) {
   stepper_attr_t config;
   config.dir_port = &dir_port;
   config.dir_port_ddr = &dir_port_ddr;
@@ -137,5 +146,5 @@ stepper_err_t _makeStepper(void) {
   config.step_port_ddr = &step_port_ddr;
   config.step_pin = step_pin;
 
-  return stepper_construct(config, &stepper_handles[0]);
+  return stepper_construct(config, &stepper_handles[handle_index]);
 }

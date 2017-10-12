@@ -27,6 +27,7 @@ typedef struct stepper_t {
   uint8_t step_pin;
 
   stepper_status_t status;
+  uint8_t speed;
 } stepper_t;
 /*******************************************************************************
 * Private Data
@@ -66,6 +67,7 @@ stepper_err_t stepper_construct(
       *steppers[i].step_port_ddr |= steppers[i].step_pin;
 
       steppers[i].status = STEPPER_STATUS_ACTIVE;
+      steppers[i].speed = config.speed;
 
       *handle = i;
 
@@ -80,4 +82,12 @@ stepper_err_t stepper_construct(
 void stepper_destruct(stepper_descriptor_t handle) {
   steppers[handle].status = STEPPER_STATUS_INACTIVE;
 
+}
+
+void stepper_setSpeed(stepper_descriptor_t handle, uint8_t speed) {
+  steppers[handle].speed = speed;
+}
+
+uint8_t stepper_getSpeed(stepper_descriptor_t handle) {
+  return steppers[handle].speed;
 }
