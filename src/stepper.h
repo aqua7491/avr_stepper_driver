@@ -5,6 +5,11 @@
 /*******************************************************************************
 * Public Typedefs
 *******************************************************************************/
+typedef enum stepper_err_t {
+  STEPPER_ERR_NONE,
+  STEPPER_ERR_NONE_AVAILABLE
+} stepper_err_t;
+
 typedef struct stepper_attr_t {
   uint8_t *dir_port;
   uint8_t *dir_port_ddr;
@@ -19,9 +24,15 @@ typedef struct stepper_attr_t {
   uint8_t step_pin;
 } stepper_attr_t;
 
+typedef uint8_t stepper_descriptor_t;
+
 /*******************************************************************************
 * Public Function Declarations
 *******************************************************************************/
-void stepper_construct(stepper_attr_t config);
+stepper_err_t stepper_construct(
+  stepper_attr_t config,
+  stepper_descriptor_t *handle
+);
+void stepper_destruct(stepper_descriptor_t handle);
 
 #endif // _STEPPER_H

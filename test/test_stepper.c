@@ -7,8 +7,14 @@
 #include "stepper.h"
 
 /*******************************************************************************
+* Private Defines
+*******************************************************************************/
+#define MAX_STEPPERS 2
+
+/*******************************************************************************
 * Local Data
 *******************************************************************************/
+// GPIO
 static uint8_t dir_port;
 static uint8_t dir_port_ddr;
 static uint8_t dir_pin;
@@ -18,6 +24,12 @@ static uint8_t enable_pin;
 static uint8_t step_port;
 static uint8_t step_port_ddr;
 static uint8_t step_pin;
+
+stepper_descriptor_t stepper_handles[2];
+/*******************************************************************************
+* Private Function Declarations
+*******************************************************************************/
+stepper_err_t _makeStepper(void);
 
 /*******************************************************************************
 * Setup and Teardown
@@ -41,6 +53,10 @@ void setUp(void)
 
 void tearDown(void)
 {
+  uint8_t i;
+  for (i=0;i<MAX_STEPPERS;i++) {
+    stepper_destruct(i);
+  }
 }
 
 /*******************************************************************************
@@ -48,20 +64,7 @@ void tearDown(void)
 *******************************************************************************/
 void test_construct_initializes_hardware_pins_with_individual_ports(void)
 {
-  stepper_attr_t config;
-  config.dir_port = &dir_port;
-  config.dir_port_ddr = &dir_port_ddr;
-  config.dir_pin = dir_pin;
-
-  config.enable_port = &enable_port;
-  config.enable_port_ddr = &enable_port_ddr;
-  config.enable_pin = enable_pin;
-
-  config.step_port = &step_port;
-  config.step_port_ddr = &step_port_ddr;
-  config.step_pin = step_pin;
-
-  stepper_construct(config);
+  _makeStepper();
 
   TEST_ASSERT(dir_port == 0);
   TEST_ASSERT(dir_port_ddr == dir_pin);
@@ -91,8 +94,48 @@ void test_construct_initializes_hardware_pins_with_shared_ports(void)
   config.step_port_ddr = &shared_port_ddr;
   config.step_pin = 4;
 
-  stepper_construct(config);
+  stepper_construct(config, &stepper_handles[0]);
 
   TEST_ASSERT(shared_port_ddr == 7);
   TEST_ASSERT(shared_port == 0);
+}
+
+void test_construct_returns_descriptor_thru_ptr(void)
+{
+  stepper_handles[0] = 1;
+  _makeStepper();
+
+  TEST_ASSERT(stepper_handles[0] == 0);
+}
+
+void test_construct_returns_success_if_steppers_available(void)
+{
+  TEST_ASSERT(_makeStepper() == STEPPER_ERR_NONE);
+}
+
+void test_construct_returns_err_if_none_available(void)
+{
+  _makeStepper();
+  _makeStepper();
+  TEST_ASSERT(_makeStepper() == STEPPER_ERR_NONE_AVAILABLE);
+}
+
+/*******************************************************************************
+* Private Function Definitions
+*******************************************************************************/
+stepper_err_t _makeStepper(void) {
+  stepper_attr_t config;
+  config.dir_port = &dir_port;
+  config.dir_port_ddr = &dir_port_ddr;
+  config.dir_pin = dir_pin;
+
+  config.enable_port = &enable_port;
+  config.enable_port_ddr = &enable_port_ddr;
+  config.enable_pin = enable_pin;
+
+  config.step_port = &step_port;
+  config.step_port_ddr = &step_port_ddr;
+  config.step_pin = step_pin;
+
+  return stepper_construct(config, &stepper_handles[0]);
 }
