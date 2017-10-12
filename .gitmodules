@@ -1,0 +1,3 @@
+[submodule "simple_avr_timer"]
+	path = src/simple_avr_timer
+	url = https://github.com/link2cory/simple_avr_timer.git
