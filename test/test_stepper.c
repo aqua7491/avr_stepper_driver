@@ -129,6 +129,19 @@ void test_set_speed_sets_speed(void)
   TEST_ASSERT(stepper_getSpeed(stepper_handles[handle_index]) == speed);
 }
 
+void test_set_speed_throws_error_when_handle_invalid(void)
+{
+  uint8_t speed = (uint8_t)rand();
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+
+  _makeStepper(handle_index);
+  TEST_ASSERT(
+    stepper_setSpeed(invalid_handle, speed)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
+
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/

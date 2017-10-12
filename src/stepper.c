@@ -84,8 +84,17 @@ void stepper_destruct(stepper_descriptor_t handle) {
 
 }
 
-void stepper_setSpeed(stepper_descriptor_t handle, uint8_t speed) {
-  steppers[handle].speed = speed;
+stepper_err_t stepper_setSpeed(stepper_descriptor_t handle, uint8_t speed) {
+  stepper_err_t err = STEPPER_ERR_NONE;
+
+  if (handle >= MAX_STEPPERS
+    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+  ) {
+    err = STEPPER_ERR_HANDLE_INVALID;
+  } else {
+    steppers[handle].speed = speed;
+  }
+  return err;
 }
 
 uint8_t stepper_getSpeed(stepper_descriptor_t handle) {
