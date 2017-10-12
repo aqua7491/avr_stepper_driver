@@ -10,6 +10,7 @@
 * Private Defines
 *******************************************************************************/
 #define MAX_STEPPERS 2
+#define NUM_STEP_SIZE_OPTIONS 5
 
 /*******************************************************************************
 * Local Data
@@ -187,12 +188,38 @@ void test_set_speed_throws_error_when_handle_invalid(void)
 
 void test_setStepSize_sets_step_size(void)
 {
-  uint8_t step_size = (stepper_step_size_t)(rand() % 4);
+  uint8_t i;
+  uint8_t step_size;
   uint8_t handle_index = 0;
 
   _makeStepper(handle_index);
-  stepper_setStepSize(stepper_handles[handle_index], step_size);
-  TEST_ASSERT(stepper_getStepSize(stepper_handles[handle_index]) == step_size);
+  for (i=0;i<NUM_STEP_SIZE_OPTIONS;i++) {
+
+  }
+
+  stepper_setStepSize(stepper_handles[handle_index], STEPPER_STEP_SIZE_FULL);
+  TEST_ASSERT(ms1_port == 0);
+  TEST_ASSERT(ms2_port == 0);
+  TEST_ASSERT(ms3_port == 0);
+  stepper_setStepSize(stepper_handles[handle_index], STEPPER_STEP_SIZE_HALF);
+  TEST_ASSERT(ms1_port == ms1_pin);
+  TEST_ASSERT(ms2_port == 0);
+  TEST_ASSERT(ms3_port == 0);
+  stepper_setStepSize(stepper_handles[handle_index], STEPPER_STEP_SIZE_QUARTER);
+  TEST_ASSERT(ms1_port == 0);
+  TEST_ASSERT(ms2_port == ms2_pin);
+  TEST_ASSERT(ms3_port == 0);
+  stepper_setStepSize(stepper_handles[handle_index], STEPPER_STEP_SIZE_EIGHTH);
+  TEST_ASSERT(ms1_port == ms1_pin);
+  TEST_ASSERT(ms2_port == ms2_pin);
+  TEST_ASSERT(ms3_port == 0);
+  stepper_setStepSize(
+    stepper_handles[handle_index],
+    STEPPER_STEP_SIZE_SIXTEENTH
+  );
+  TEST_ASSERT(ms1_port == ms1_pin);
+  TEST_ASSERT(ms2_port == ms2_pin);
+  TEST_ASSERT(ms3_port == ms3_pin);
 }
 
 // void test_setStepSize_sets_step_size(void)

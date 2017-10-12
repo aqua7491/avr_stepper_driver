@@ -139,6 +139,34 @@ void stepper_setStepSize(
   stepper_descriptor_t handle,
   stepper_step_size_t step_size
 ) {
+  // set ms1
+  if (step_size == STEPPER_STEP_SIZE_HALF
+    || step_size == STEPPER_STEP_SIZE_EIGHTH
+    || step_size == STEPPER_STEP_SIZE_SIXTEENTH
+  ) {
+    *steppers[handle].ms1_port |= steppers[handle].ms1_pin;
+  } else {
+    *steppers[handle].ms1_port &= ~steppers[handle].ms1_pin;
+  }
+
+  // set ms2
+  if (step_size == STEPPER_STEP_SIZE_QUARTER
+    || step_size == STEPPER_STEP_SIZE_EIGHTH
+    || step_size == STEPPER_STEP_SIZE_SIXTEENTH
+  ) {
+    *steppers[handle].ms2_port |= steppers[handle].ms2_pin;
+  } else {
+    *steppers[handle].ms2_port &= ~steppers[handle].ms2_pin;
+  }
+
+  // set ms3
+  if (step_size == STEPPER_STEP_SIZE_SIXTEENTH
+  ) {
+    *steppers[handle].ms3_port |= steppers[handle].ms3_pin;
+  } else {
+    *steppers[handle].ms3_port &= ~steppers[handle].ms3_pin;
+  }
+
   steppers[handle].step_size = step_size;
 }
 
