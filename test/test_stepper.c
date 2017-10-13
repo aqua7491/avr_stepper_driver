@@ -291,6 +291,21 @@ void test_set_dir_sets_direction(void)
   TEST_ASSERT(stepper_getDir(stepper_handles[handle_index]) == dir);
   TEST_ASSERT((dir_port >> dir_pin) == dir);
 }
+
+void test_setDir_returns_error_when_handle_invalid(void)
+{
+  stepper_dir_t dir = (stepper_dir_t)(rand() % NUM_DIRECTIONS);
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+  _makeStepper(handle_index);
+
+  stepper_setDir(stepper_handles[handle_index], dir);
+
+  TEST_ASSERT(
+    stepper_setDir(invalid_handle, dir)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/

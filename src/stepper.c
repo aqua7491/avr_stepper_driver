@@ -208,8 +208,17 @@ uint8_t stepper_getDesiredPos(stepper_descriptor_t handle) {
 }
 
 stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir) {
+  stepper_err_t err = STEPPER_ERR_NONE;
+
+  if (handle >= MAX_STEPPERS
+    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+  ) {
+    err = STEPPER_ERR_HANDLE_INVALID;
+  } else {
     steppers[handle].dir = dir;
     *steppers[handle].dir_port |= (dir << steppers[handle].dir_pin);
+  }
+  return err;
 }
 
 stepper_dir_t stepper_getDir(stepper_descriptor_t handle) {
