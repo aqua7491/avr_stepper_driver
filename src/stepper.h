@@ -20,6 +20,11 @@ typedef enum stepper_step_size_t {
   STEPPER_STEP_SIZE_SIXTEENTH,
 } stepper_step_size_t;
 
+typedef enum stepper_dir_t {
+  STEPPER_DIR_FORWARD,
+  STEPPER_DIR_REVERSE
+} stepper_dir_t;
+
 typedef struct stepper_attr_t {
   uint8_t *dir_port;
   uint8_t *dir_port_ddr;
@@ -68,5 +73,7 @@ stepper_err_t stepper_setStepSize(
 stepper_step_size_t stepper_getStepSize(stepper_descriptor_t handle);
 stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos);
 uint8_t stepper_getDesiredPos(stepper_descriptor_t handle);
+stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir);
+stepper_dir_t stepper_getDir(stepper_descriptor_t handle);
 
 #endif // _STEPPER_H

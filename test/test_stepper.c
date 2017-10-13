@@ -12,6 +12,7 @@
 #define MAX_STEPPERS 2
 #define NUM_STEP_SIZE_OPTIONS 5
 #define MAX_STEPPER_POS 199
+#define NUM_DIRECTIONS 2
 
 /*******************************************************************************
 * Local Data
@@ -278,6 +279,17 @@ void test_setPos_returns_error_when_position_invalid(void)
     stepper_setPos(stepper_handles[handle_index], position)
     == STEPPER_ERR_POSITION_INVALID
   );
+}
+
+void test_set_dir_sets_direction(void)
+{
+  stepper_dir_t dir = (stepper_dir_t)(rand() % NUM_DIRECTIONS);
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_setDir(stepper_handles[handle_index], dir);
+  TEST_ASSERT(stepper_getDir(stepper_handles[handle_index]) == dir);
+  TEST_ASSERT((dir_port >> dir_pin) == dir);
 }
 /*******************************************************************************
 * Private Function Definitions

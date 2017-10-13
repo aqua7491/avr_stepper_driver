@@ -43,6 +43,7 @@ typedef struct stepper_t {
   uint8_t speed;
   stepper_step_size_t step_size;
   uint8_t desired_pos;
+  stepper_dir_t dir;
 } stepper_t;
 /*******************************************************************************
 * Private Data
@@ -204,4 +205,13 @@ stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos) {
 
 uint8_t stepper_getDesiredPos(stepper_descriptor_t handle) {
   return steppers[handle].desired_pos;
+}
+
+stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir) {
+    steppers[handle].dir = dir;
+    *steppers[handle].dir_port |= (dir << steppers[handle].dir_pin);
+}
+
+stepper_dir_t stepper_getDir(stepper_descriptor_t handle) {
+  return steppers[handle].dir;
 }
