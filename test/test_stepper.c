@@ -283,7 +283,7 @@ void test_setPos_returns_error_when_position_invalid(void)
 
 void test_set_dir_sets_direction(void)
 {
-  stepper_dir_t dir = (stepper_dir_t)(rand() % NUM_DIRECTIONS);
+  stepper_dir_t dir = (stepper_dir_t)(rand() % (NUM_DIRECTIONS-1));
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
 
@@ -294,7 +294,7 @@ void test_set_dir_sets_direction(void)
 
 void test_setDir_returns_error_when_handle_invalid(void)
 {
-  stepper_dir_t dir = (stepper_dir_t)(rand() % NUM_DIRECTIONS);
+  stepper_dir_t dir = (stepper_dir_t)(rand() % (NUM_DIRECTIONS-1));
   uint8_t handle_index = 0;
   uint8_t invalid_handle = 3;
   _makeStepper(handle_index);
