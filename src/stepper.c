@@ -4,6 +4,7 @@
 * Private Defines
 *******************************************************************************/
 #define MAX_STEPPERS 2
+#define MAX_STEPPER_POS 199
 
 /*******************************************************************************
 * Private Typedefs
@@ -192,7 +193,11 @@ stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos) {
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
-    steppers[handle].desired_pos = pos;
+    if (pos <= MAX_STEPPER_POS) {
+      steppers[handle].desired_pos = pos;
+    } else {
+      err = STEPPER_ERR_POSITION_INVALID;
+    }
   }
   return err;
 }

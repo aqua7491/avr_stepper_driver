@@ -8,7 +8,8 @@
 typedef enum stepper_err_t {
   STEPPER_ERR_NONE,
   STEPPER_ERR_NONE_AVAILABLE,
-  STEPPER_ERR_HANDLE_INVALID
+  STEPPER_ERR_HANDLE_INVALID,
+  STEPPER_ERR_POSITION_INVALID
 } stepper_err_t;
 
 typedef enum stepper_step_size_t {

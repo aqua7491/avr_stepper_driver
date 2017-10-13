@@ -11,6 +11,7 @@
 *******************************************************************************/
 #define MAX_STEPPERS 2
 #define NUM_STEP_SIZE_OPTIONS 5
+#define MAX_STEPPER_POS 199
 
 /*******************************************************************************
 * Local Data
@@ -237,11 +238,14 @@ void test_setStepSize_throws_error_when_handle_invalid(void)
 
 void test_setPos_sets_desired_position(void)
 {
-  uint8_t position = (uint8_t)rand();
+  uint8_t position = (uint8_t)(rand() % 199);
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
 
-  stepper_setPos(stepper_handles[handle_index], position);
+  TEST_ASSERT(
+    stepper_setPos(stepper_handles[handle_index], position)
+    == STEPPER_ERR_NONE
+  );
 
   TEST_ASSERT(
     stepper_getDesiredPos(stepper_handles[handle_index])
@@ -251,7 +255,7 @@ void test_setPos_sets_desired_position(void)
 
 void test_setPos_returns_error_when_handle_invalid(void)
 {
-  uint8_t position = (uint8_t)rand();
+  uint8_t position = (uint8_t)(rand() % MAX_STEPPER_POS);
   uint8_t handle_index = 0;
   uint8_t invalid_handle = 3;
   _makeStepper(handle_index);
@@ -264,6 +268,17 @@ void test_setPos_returns_error_when_handle_invalid(void)
   );
 }
 
+void test_setPos_returns_error_when_position_invalid(void)
+{
+  uint8_t position = MAX_STEPPER_POS + 1;
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  TEST_ASSERT(
+    stepper_setPos(stepper_handles[handle_index], position)
+    == STEPPER_ERR_POSITION_INVALID
+  );
+}
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
