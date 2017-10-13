@@ -135,39 +135,48 @@ uint8_t stepper_getSpeed(stepper_descriptor_t handle) {
   return steppers[handle].speed;
 }
 
-void stepper_setStepSize(
+stepper_err_t stepper_setStepSize(
   stepper_descriptor_t handle,
   stepper_step_size_t step_size
 ) {
-  // set ms1
-  if (step_size == STEPPER_STEP_SIZE_HALF
-    || step_size == STEPPER_STEP_SIZE_EIGHTH
-    || step_size == STEPPER_STEP_SIZE_SIXTEENTH
-  ) {
-    *steppers[handle].ms1_port |= steppers[handle].ms1_pin;
-  } else {
-    *steppers[handle].ms1_port &= ~steppers[handle].ms1_pin;
-  }
+  stepper_err_t err = STEPPER_ERR_NONE;
 
-  // set ms2
-  if (step_size == STEPPER_STEP_SIZE_QUARTER
-    || step_size == STEPPER_STEP_SIZE_EIGHTH
-    || step_size == STEPPER_STEP_SIZE_SIXTEENTH
+  if (handle >= MAX_STEPPERS
+    || steppers[handle].status != STEPPER_STATUS_ACTIVE
   ) {
-    *steppers[handle].ms2_port |= steppers[handle].ms2_pin;
+    err = STEPPER_ERR_HANDLE_INVALID;
   } else {
-    *steppers[handle].ms2_port &= ~steppers[handle].ms2_pin;
-  }
+    // set ms1
+    if (step_size == STEPPER_STEP_SIZE_HALF
+      || step_size == STEPPER_STEP_SIZE_EIGHTH
+      || step_size == STEPPER_STEP_SIZE_SIXTEENTH
+    ) {
+      *steppers[handle].ms1_port |= steppers[handle].ms1_pin;
+    } else {
+      *steppers[handle].ms1_port &= ~steppers[handle].ms1_pin;
+    }
 
-  // set ms3
-  if (step_size == STEPPER_STEP_SIZE_SIXTEENTH
-  ) {
-    *steppers[handle].ms3_port |= steppers[handle].ms3_pin;
-  } else {
-    *steppers[handle].ms3_port &= ~steppers[handle].ms3_pin;
-  }
+    // set ms2
+    if (step_size == STEPPER_STEP_SIZE_QUARTER
+      || step_size == STEPPER_STEP_SIZE_EIGHTH
+      || step_size == STEPPER_STEP_SIZE_SIXTEENTH
+    ) {
+      *steppers[handle].ms2_port |= steppers[handle].ms2_pin;
+    } else {
+      *steppers[handle].ms2_port &= ~steppers[handle].ms2_pin;
+    }
 
-  steppers[handle].step_size = step_size;
+    // set ms3
+    if (step_size == STEPPER_STEP_SIZE_SIXTEENTH
+    ) {
+      *steppers[handle].ms3_port |= steppers[handle].ms3_pin;
+    } else {
+      *steppers[handle].ms3_port &= ~steppers[handle].ms3_pin;
+    }
+
+    steppers[handle].step_size = step_size;
+  }
+  return err;
 }
 
 stepper_step_size_t stepper_getStepSize(stepper_descriptor_t handle) {

@@ -222,15 +222,18 @@ void test_setStepSize_sets_step_size(void)
   TEST_ASSERT(ms3_port == ms3_pin);
 }
 
-// void test_setStepSize_sets_step_size(void)
-// {
-//   uint8_t step_size = (stepper_step_size_t)(rand() % 4);
-//   uint8_t handle_index = 0;
-//
-//   _makeStepper(handle_index);
-//   stepper_setStepSize(stepper_handles[handle_index], step_size);
-//   TEST_ASSERT(stepper_getStepSize(stepper_handles[handle_index]) == step_size);
-// }
+void test_setStepSize_throws_error_when_handle_invalid(void)
+{
+  uint8_t step_size = STEPPER_STEP_SIZE_FULL;
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+
+  _makeStepper(handle_index);
+  TEST_ASSERT(
+    stepper_setStepSize(invalid_handle, step_size)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
 
 /*******************************************************************************
 * Private Function Definitions
