@@ -235,6 +235,35 @@ void test_setStepSize_throws_error_when_handle_invalid(void)
   );
 }
 
+void test_setPos_sets_desired_position(void)
+{
+  uint8_t position = (uint8_t)rand();
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_setPos(stepper_handles[handle_index], position);
+
+  TEST_ASSERT(
+    stepper_getDesiredPos(stepper_handles[handle_index])
+    == position
+  );
+}
+
+void test_setPos_returns_error_when_handle_invalid(void)
+{
+  uint8_t position = (uint8_t)rand();
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+  _makeStepper(handle_index);
+
+  stepper_setPos(stepper_handles[handle_index], position);
+
+  TEST_ASSERT(
+    stepper_setPos(invalid_handle, position)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
+
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/

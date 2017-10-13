@@ -41,6 +41,7 @@ typedef struct stepper_t {
   stepper_status_t status;
   uint8_t speed;
   stepper_step_size_t step_size;
+  uint8_t desired_pos;
 } stepper_t;
 /*******************************************************************************
 * Private Data
@@ -181,4 +182,21 @@ stepper_err_t stepper_setStepSize(
 
 stepper_step_size_t stepper_getStepSize(stepper_descriptor_t handle) {
   return steppers[handle].step_size;
+}
+
+stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos) {
+  stepper_err_t err = STEPPER_ERR_NONE;
+
+  if (handle >= MAX_STEPPERS
+    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+  ) {
+    err = STEPPER_ERR_HANDLE_INVALID;
+  } else {
+    steppers[handle].desired_pos = pos;
+  }
+  return err;
+}
+
+uint8_t stepper_getDesiredPos(stepper_descriptor_t handle) {
+  return steppers[handle].desired_pos;
 }

@@ -65,5 +65,7 @@ stepper_err_t stepper_setStepSize(
   stepper_step_size_t step_size
 );
 stepper_step_size_t stepper_getStepSize(stepper_descriptor_t handle);
+stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos);
+uint8_t stepper_getDesiredPos(stepper_descriptor_t handle);
 
 #endif // _STEPPER_H
