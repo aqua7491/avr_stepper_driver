@@ -121,6 +121,34 @@ void stepper_destruct(stepper_descriptor_t handle) {
 
 }
 
+stepper_err_t stepper_enable(stepper_descriptor_t handle) {
+  stepper_err_t err = STEPPER_ERR_NONE;
+
+  if (handle >= MAX_STEPPERS
+    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+  ) {
+    err = STEPPER_ERR_HANDLE_INVALID;
+  } else {
+    *steppers[handle].enable_port &= ~steppers[handle].enable_pin;
+  }
+
+  return err;
+}
+
+stepper_err_t stepper_disable(stepper_descriptor_t handle) {
+  stepper_err_t err = STEPPER_ERR_NONE;
+
+  if (handle >= MAX_STEPPERS
+    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+  ) {
+    err = STEPPER_ERR_HANDLE_INVALID;
+  } else {
+    *steppers[handle].enable_port |= steppers[handle].enable_pin;
+  }
+
+  return err;
+}
+
 stepper_err_t stepper_setSpeed(stepper_descriptor_t handle, uint8_t speed) {
   stepper_err_t err = STEPPER_ERR_NONE;
 
@@ -224,6 +252,7 @@ stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir) {
 stepper_dir_t stepper_getDir(stepper_descriptor_t handle) {
   return steppers[handle].dir;
 }
+
 
 stepper_err_t stepper_stepEngage(stepper_descriptor_t handle) {
   stepper_err_t err = STEPPER_ERR_NONE;

@@ -166,6 +166,55 @@ void test_construct_returns_err_if_none_available(void)
   TEST_ASSERT(_makeStepper(0) == STEPPER_ERR_NONE_AVAILABLE);
 }
 
+void test_enable_sets_enable_pin_low(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_enable(stepper_handles[handle_index]);
+
+  TEST_ASSERT(enable_port == 0);
+}
+
+void test_enable_returns_error_when_handle_invalid(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+  _makeStepper(handle_index);
+
+  stepper_enable(stepper_handles[handle_index]);
+
+  TEST_ASSERT(
+    stepper_enable(invalid_handle)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
+
+void test_disable_sets_enable_pin_high(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_enable(stepper_handles[handle_index]);
+  stepper_disable(stepper_handles[handle_index]);
+
+  TEST_ASSERT(enable_port == enable_pin);
+}
+
+void test_disable_returns_error_when_handle_invalid(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+  _makeStepper(handle_index);
+
+  stepper_disable(stepper_handles[handle_index]);
+
+  TEST_ASSERT(
+    stepper_disable(invalid_handle)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
+
 void test_set_speed_sets_speed(void)
 {
   uint8_t speed = (uint8_t)rand();
@@ -330,6 +379,7 @@ void test_stepEngage_returns_error_when_handle_invalid(void)
     == STEPPER_ERR_HANDLE_INVALID
   );
 }
+
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/

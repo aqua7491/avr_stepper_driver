@@ -64,6 +64,8 @@ stepper_err_t stepper_construct(
   stepper_descriptor_t *handle
 );
 void stepper_destruct(stepper_descriptor_t handle);
+stepper_err_t stepper_enable(stepper_descriptor_t handle);
+stepper_err_t stepper_disable(stepper_descriptor_t handle);
 stepper_err_t stepper_setSpeed(stepper_descriptor_t handle, uint8_t speed);
 uint8_t stepper_getSpeed(stepper_descriptor_t handle);
 stepper_err_t stepper_setStepSize(
