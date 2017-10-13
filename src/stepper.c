@@ -224,3 +224,7 @@ stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir) {
 stepper_dir_t stepper_getDir(stepper_descriptor_t handle) {
   return steppers[handle].dir;
 }
+
+void stepper_stepEngage(stepper_descriptor_t handle) {
+  *steppers[handle].step_port |= steppers[handle].step_pin;
+}

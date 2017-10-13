@@ -306,6 +306,16 @@ void test_setDir_returns_error_when_handle_invalid(void)
     == STEPPER_ERR_HANDLE_INVALID
   );
 }
+
+void test_stepEngage_sets_step_pin_high(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_stepEngage(stepper_handles[handle_index]);
+
+  TEST_ASSERT(step_port == step_pin);
+}
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/

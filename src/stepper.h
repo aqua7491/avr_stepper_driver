@@ -76,4 +76,6 @@ uint8_t stepper_getDesiredPos(stepper_descriptor_t handle);
 stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir);
 stepper_dir_t stepper_getDir(stepper_descriptor_t handle);
 
+void stepper_stepEngage(stepper_descriptor_t handle);
+
 #endif // _STEPPER_H
