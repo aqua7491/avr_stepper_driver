@@ -316,6 +316,20 @@ void test_stepEngage_sets_step_pin_high(void)
 
   TEST_ASSERT(step_port == step_pin);
 }
+
+void test_stepEngage_returns_error_when_handle_invalid(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+  _makeStepper(handle_index);
+
+  stepper_stepEngage(stepper_handles[handle_index]);
+
+  TEST_ASSERT(
+    stepper_stepEngage(invalid_handle)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
