@@ -53,27 +53,27 @@ void setUp(void)
 
   dir_port = (uint8_t)rand();
   dir_port_ddr = 0;
-  dir_pin = (1 << (rand() % 8 + 0));
+  dir_pin = (rand() % 8);
 
   enable_port = (uint8_t)rand();
   enable_port_ddr = 0;
-  enable_pin = (1 << (rand() % 8 + 0));
+  enable_pin = (rand() % 8);
 
   step_port = (uint8_t)rand();
   step_port_ddr = 0;
-  step_pin = (1 << (rand() % 8 + 0));
+  step_pin = (rand() % 8);
 
   ms1_port = (uint8_t)rand();
   ms1_port_ddr = 0;
-  ms1_pin = (1 << (rand() % 8 + 0));
+  ms1_pin = (rand() % 8);
 
   ms2_port = (uint8_t)rand();
   ms2_port_ddr = 0;
-  ms2_pin = (1 << (rand() % 8 + 0));
+  ms2_pin = (rand() % 8);
 
   ms3_port = (uint8_t)rand();
   ms3_port_ddr = 0;
-  ms3_pin = (1 << (rand() % 8 + 0));
+  ms3_pin = (rand() % 8);
 }
 
 void tearDown(void)
@@ -91,23 +91,23 @@ void test_construct_initializes_hardware_pins_with_individual_ports(void)
 {
   _makeStepper(0);
 
-  TEST_ASSERT(dir_port == 0);
-  TEST_ASSERT(dir_port_ddr == dir_pin);
+  TEST_ASSERT((dir_port & (1 << dir_pin)) == 0);
+  TEST_ASSERT(dir_port_ddr & (1 << dir_pin));
 
-  TEST_ASSERT(enable_port == 0);
-  TEST_ASSERT(enable_port_ddr == enable_pin);
+  TEST_ASSERT(enable_port & (1 << enable_pin));
+  TEST_ASSERT(enable_port_ddr & (1 << enable_pin));
 
-  TEST_ASSERT(step_port == 0);
-  TEST_ASSERT(step_port_ddr == step_pin);
+  TEST_ASSERT((step_port & (1 << step_pin)) == 0);
+  TEST_ASSERT(step_port_ddr & (1 << step_pin));
 
-  TEST_ASSERT(ms1_port == 0);
-  TEST_ASSERT(ms1_port_ddr == ms1_pin);
+  TEST_ASSERT((ms1_port & (1 << ms1_pin)) == 0);
+  TEST_ASSERT(ms1_port_ddr & (1 << ms1_pin));
 
-  TEST_ASSERT(ms2_port == 0);
-  TEST_ASSERT(ms2_port_ddr == ms2_pin);
+  TEST_ASSERT((ms2_port & (1 << ms2_pin)) == 0);
+  TEST_ASSERT(ms2_port_ddr & (1 << ms2_pin));
 
-  TEST_ASSERT(ms3_port == 0);
-  TEST_ASSERT(ms3_port_ddr == ms3_pin);
+  TEST_ASSERT((ms3_port & (1 << ms3_pin)) == 0);
+  TEST_ASSERT(ms3_port_ddr & (1 << ms3_pin));
 }
 
 void test_construct_initializes_hardware_pins_with_shared_ports(void)
@@ -118,32 +118,32 @@ void test_construct_initializes_hardware_pins_with_shared_ports(void)
 
   config.dir_port = &shared_port;
   config.dir_port_ddr = &shared_port_ddr;
-  config.dir_pin = 1;
+  config.dir_pin = 0;
 
   config.enable_port = &shared_port;
   config.enable_port_ddr = &shared_port_ddr;
-  config.enable_pin = 2;
+  config.enable_pin = 1;
 
   config.step_port = &shared_port;
   config.step_port_ddr = &shared_port_ddr;
-  config.step_pin = 4;
+  config.step_pin = 2;
 
   config.ms1_port = &shared_port;
   config.ms1_port_ddr = &shared_port_ddr;
-  config.ms1_pin = 8;
+  config.ms1_pin = 3;
 
   config.ms2_port = &shared_port;
   config.ms2_port_ddr = &shared_port_ddr;
-  config.ms2_pin = 16;
+  config.ms2_pin = 4;
 
   config.ms3_port = &shared_port;
   config.ms3_port_ddr = &shared_port_ddr;
-  config.ms3_pin = 32;
+  config.ms3_pin = 5;
 
   stepper_construct(config, &stepper_handles[0]);
 
   TEST_ASSERT(shared_port_ddr == 63);
-  TEST_ASSERT(shared_port == 0);
+  TEST_ASSERT(shared_port == 2);
 }
 
 void test_construct_returns_descriptor_thru_ptr(void)
@@ -173,7 +173,7 @@ void test_enable_sets_enable_pin_low(void)
 
   stepper_enable(stepper_handles[handle_index]);
 
-  TEST_ASSERT(enable_port == 0);
+  TEST_ASSERT((enable_port & (1 << enable_pin)) == 0);
 }
 
 void test_enable_returns_error_when_handle_invalid(void)
@@ -198,7 +198,7 @@ void test_disable_sets_enable_pin_high(void)
   stepper_enable(stepper_handles[handle_index]);
   stepper_disable(stepper_handles[handle_index]);
 
-  TEST_ASSERT(enable_port == enable_pin);
+  TEST_ASSERT(enable_port & (1 << enable_pin));
 }
 
 void test_disable_returns_error_when_handle_invalid(void)
@@ -244,33 +244,30 @@ void test_setStepSize_sets_step_size(void)
   uint8_t handle_index = 0;
 
   _makeStepper(handle_index);
-  for (i=0;i<NUM_STEP_SIZE_OPTIONS;i++) {
-
-  }
 
   stepper_setStepSize(stepper_handles[handle_index], STEPPER_STEP_SIZE_FULL);
-  TEST_ASSERT(ms1_port == 0);
-  TEST_ASSERT(ms2_port == 0);
-  TEST_ASSERT(ms3_port == 0);
+  TEST_ASSERT((ms1_port & (1 << ms1_pin)) == 0);
+  TEST_ASSERT((ms2_port & (1 << ms2_pin)) == 0);
+  TEST_ASSERT((ms3_port & (1 << ms3_pin)) == 0);
   stepper_setStepSize(stepper_handles[handle_index], STEPPER_STEP_SIZE_HALF);
-  TEST_ASSERT(ms1_port == ms1_pin);
-  TEST_ASSERT(ms2_port == 0);
-  TEST_ASSERT(ms3_port == 0);
+  TEST_ASSERT(ms1_port & (1 << ms1_pin));
+  TEST_ASSERT((ms2_port & (1 << ms2_pin)) == 0);
+  TEST_ASSERT((ms3_port & (1 << ms3_pin)) == 0);
   stepper_setStepSize(stepper_handles[handle_index], STEPPER_STEP_SIZE_QUARTER);
-  TEST_ASSERT(ms1_port == 0);
-  TEST_ASSERT(ms2_port == ms2_pin);
-  TEST_ASSERT(ms3_port == 0);
+  TEST_ASSERT((ms1_port & (1 << ms1_pin)) == 0);
+  TEST_ASSERT(ms2_port & (1 << ms2_pin));
+  TEST_ASSERT((ms3_port & (1 << ms3_pin)) == 0);
   stepper_setStepSize(stepper_handles[handle_index], STEPPER_STEP_SIZE_EIGHTH);
-  TEST_ASSERT(ms1_port == ms1_pin);
-  TEST_ASSERT(ms2_port == ms2_pin);
-  TEST_ASSERT(ms3_port == 0);
+  TEST_ASSERT(ms1_port & (1 << ms1_pin));
+  TEST_ASSERT(ms2_port & (1 << ms2_pin));
+  TEST_ASSERT((ms3_port & (1 << ms3_pin)) == 0);
   stepper_setStepSize(
     stepper_handles[handle_index],
     STEPPER_STEP_SIZE_SIXTEENTH
   );
-  TEST_ASSERT(ms1_port == ms1_pin);
-  TEST_ASSERT(ms2_port == ms2_pin);
-  TEST_ASSERT(ms3_port == ms3_pin);
+  TEST_ASSERT(ms1_port & (1 << ms1_pin));
+  TEST_ASSERT(ms2_port & (1 << ms2_pin));
+  TEST_ASSERT(ms3_port & (1 << ms3_pin));
 }
 
 void test_setStepSize_throws_error_when_handle_invalid(void)
@@ -330,15 +327,26 @@ void test_setPos_returns_error_when_position_invalid(void)
   );
 }
 
-void test_set_dir_sets_direction(void)
+void test_setDir_sets_direction_bit(void)
 {
-  stepper_dir_t dir = (stepper_dir_t)(rand() % (NUM_DIRECTIONS-1));
+  stepper_dir_t dir = STEPPER_DIR_FORWARD;
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
 
   stepper_setDir(stepper_handles[handle_index], dir);
   TEST_ASSERT(stepper_getDir(stepper_handles[handle_index]) == dir);
-  TEST_ASSERT((dir_port >> dir_pin) == dir);
+  TEST_ASSERT((dir_port & (1 << dir_pin)) == 0);
+}
+
+void test_set_dir_clears_direction_bit(void)
+{
+  stepper_dir_t dir = STEPPER_DIR_REVERSE;
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_setDir(stepper_handles[handle_index], dir);
+  TEST_ASSERT(stepper_getDir(stepper_handles[handle_index]) == dir);
+  TEST_ASSERT(dir_port & (1 << dir_pin));
 }
 
 void test_setDir_returns_error_when_handle_invalid(void)
@@ -363,7 +371,7 @@ void test_stepEngage_sets_step_pin_high(void)
 
   stepper_stepEngage(stepper_handles[handle_index]);
 
-  TEST_ASSERT(step_port == step_pin);
+  TEST_ASSERT(step_port & (1 << step_pin));
 }
 
 void test_stepEngage_returns_error_when_handle_invalid(void)

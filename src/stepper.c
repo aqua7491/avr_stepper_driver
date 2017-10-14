@@ -85,23 +85,26 @@ stepper_err_t stepper_construct(
       steppers[i].ms3_port_ddr = config.ms3_port_ddr;
       steppers[i].ms3_pin = config.ms3_pin;
 
-      *steppers[i].dir_port = 0;
-      *steppers[i].dir_port_ddr |= steppers[i].dir_pin;
+      *steppers[i].dir_port &= ~(1 << steppers[i].dir_pin);
+      *steppers[i].dir_port_ddr |= (1 << steppers[i].dir_pin);
+      // *steppers[i].dir_port_ddr |= steppers[i].dir_pin;
 
-      *steppers[i].enable_port = 0;
-      *steppers[i].enable_port_ddr |= steppers[i].enable_pin;
+      // this pin is active low
+      // *steppers[i].enable_port = 0;
+      *steppers[i].enable_port |= (1 << steppers[i].enable_pin);
+      *steppers[i].enable_port_ddr |= (1 << steppers[i].enable_pin);
 
-      *steppers[i].step_port = 0;
-      *steppers[i].step_port_ddr |= steppers[i].step_pin;
+      *steppers[i].step_port &= ~(1 << steppers[i].step_pin);
+      *steppers[i].step_port_ddr |= (1 << steppers[i].step_pin);
 
-      *steppers[i].ms1_port = 0;
-      *steppers[i].ms1_port_ddr |= steppers[i].ms1_pin;
+      *steppers[i].ms1_port &= ~(1 << steppers[i].ms1_pin);
+      *steppers[i].ms1_port_ddr |= (1 << steppers[i].ms1_pin);
 
-      *steppers[i].ms2_port = 0;
-      *steppers[i].ms2_port_ddr |= steppers[i].ms2_pin;
+      *steppers[i].ms2_port &= ~(1 << steppers[i].ms2_pin);
+      *steppers[i].ms2_port_ddr |= (1 << steppers[i].ms2_pin);
 
-      *steppers[i].ms3_port = 0;
-      *steppers[i].ms3_port_ddr |= steppers[i].ms3_pin;
+      *steppers[i].ms3_port &= ~(1 << steppers[i].ms3_pin);
+      *steppers[i].ms3_port_ddr |= (1 << steppers[i].ms3_pin);
 
       steppers[i].status = STEPPER_STATUS_ACTIVE;
       steppers[i].speed = config.speed;
@@ -129,7 +132,7 @@ stepper_err_t stepper_enable(stepper_descriptor_t handle) {
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
-    *steppers[handle].enable_port &= ~steppers[handle].enable_pin;
+    *steppers[handle].enable_port &= ~(1 << steppers[handle].enable_pin);
   }
 
   return err;
@@ -143,7 +146,7 @@ stepper_err_t stepper_disable(stepper_descriptor_t handle) {
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
-    *steppers[handle].enable_port |= steppers[handle].enable_pin;
+    *steppers[handle].enable_port |= (1 << steppers[handle].enable_pin);
   }
 
   return err;
@@ -182,9 +185,9 @@ stepper_err_t stepper_setStepSize(
       || step_size == STEPPER_STEP_SIZE_EIGHTH
       || step_size == STEPPER_STEP_SIZE_SIXTEENTH
     ) {
-      *steppers[handle].ms1_port |= steppers[handle].ms1_pin;
+      *steppers[handle].ms1_port |= (1 << steppers[handle].ms1_pin);
     } else {
-      *steppers[handle].ms1_port &= ~steppers[handle].ms1_pin;
+      *steppers[handle].ms1_port &= ~(1 << steppers[handle].ms1_pin);
     }
 
     // set ms2
@@ -192,17 +195,17 @@ stepper_err_t stepper_setStepSize(
       || step_size == STEPPER_STEP_SIZE_EIGHTH
       || step_size == STEPPER_STEP_SIZE_SIXTEENTH
     ) {
-      *steppers[handle].ms2_port |= steppers[handle].ms2_pin;
+      *steppers[handle].ms2_port |= (1 << steppers[handle].ms2_pin);
     } else {
-      *steppers[handle].ms2_port &= ~steppers[handle].ms2_pin;
+      *steppers[handle].ms2_port &= ~(1 << steppers[handle].ms2_pin);
     }
 
     // set ms3
     if (step_size == STEPPER_STEP_SIZE_SIXTEENTH
     ) {
-      *steppers[handle].ms3_port |= steppers[handle].ms3_pin;
+      *steppers[handle].ms3_port |= (1 << steppers[handle].ms3_pin);
     } else {
-      *steppers[handle].ms3_port &= ~steppers[handle].ms3_pin;
+      *steppers[handle].ms3_port &= ~(1 << steppers[handle].ms3_pin);
     }
 
     steppers[handle].step_size = step_size;
@@ -244,7 +247,11 @@ stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
     steppers[handle].dir = dir;
-    *steppers[handle].dir_port |= (dir << steppers[handle].dir_pin);
+    if (dir == STEPPER_DIR_FORWARD) {
+      *steppers[handle].dir_port &= ~(dir << steppers[handle].dir_pin);
+    } else {
+      *steppers[handle].dir_port |= (dir << steppers[handle].dir_pin);
+    }
   }
   return err;
 }
@@ -262,7 +269,7 @@ stepper_err_t stepper_stepEngage(stepper_descriptor_t handle) {
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
-    *steppers[handle].step_port |= steppers[handle].step_pin;
+    *steppers[handle].step_port |= (1 << steppers[handle].step_pin);
   }
 
   return err;
