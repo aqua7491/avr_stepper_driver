@@ -9,11 +9,6 @@
 /*******************************************************************************
 * Private Typedefs
 *******************************************************************************/
-typedef enum stepper_status_t {
-  STEPPER_STATUS_INACTIVE,
-  STEPPER_STATUS_ACTIVE
-} stepper_status_t;
-
 typedef struct stepper_t {
   uint8_t *dir_port;
   uint8_t *dir_port_ddr;
@@ -43,6 +38,7 @@ typedef struct stepper_t {
   uint8_t speed;
   stepper_step_size_t step_size;
   uint8_t desired_pos;
+  uint8_t pos;
   stepper_dir_t dir;
 } stepper_t;
 /*******************************************************************************
@@ -60,7 +56,7 @@ stepper_err_t stepper_construct(
   stepper_err_t err = STEPPER_ERR_NONE_AVAILABLE;
 
   for (i=0;i<MAX_STEPPERS;i++) {
-    if (steppers[i].status == STEPPER_STATUS_INACTIVE) {
+    if (steppers[i].status == STEPPER_STATUS_AVAILABLE) {
       steppers[i].dir_port = config.dir_port;
       steppers[i].dir_port_ddr = config.dir_port_ddr;
       steppers[i].dir_pin = config.dir_pin;
@@ -106,8 +102,10 @@ stepper_err_t stepper_construct(
       *steppers[i].ms3_port &= ~(1 << steppers[i].ms3_pin);
       *steppers[i].ms3_port_ddr |= (1 << steppers[i].ms3_pin);
 
-      steppers[i].status = STEPPER_STATUS_ACTIVE;
+      steppers[i].status = STEPPER_STATUS_DISABLED;
       steppers[i].speed = config.speed;
+      steppers[i].desired_pos = 0;
+      steppers[i].pos = 0;
 
       *handle = i;
 
@@ -120,18 +118,16 @@ stepper_err_t stepper_construct(
 }
 
 void stepper_destruct(stepper_descriptor_t handle) {
-  steppers[handle].status = STEPPER_STATUS_INACTIVE;
-
+  steppers[handle].status = STEPPER_STATUS_AVAILABLE;
 }
 
 stepper_err_t stepper_enable(stepper_descriptor_t handle) {
   stepper_err_t err = STEPPER_ERR_NONE;
 
-  if (handle >= MAX_STEPPERS
-    || steppers[handle].status != STEPPER_STATUS_ACTIVE
-  ) {
+  if (handle >= MAX_STEPPERS) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
+    steppers[handle].status = STEPPER_STATUS_ENABLED;
     *steppers[handle].enable_port &= ~(1 << steppers[handle].enable_pin);
   }
 
@@ -142,21 +138,26 @@ stepper_err_t stepper_disable(stepper_descriptor_t handle) {
   stepper_err_t err = STEPPER_ERR_NONE;
 
   if (handle >= MAX_STEPPERS
-    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+    || steppers[handle].status == STEPPER_STATUS_AVAILABLE
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
+    steppers[handle].status = STEPPER_STATUS_DISABLED;
     *steppers[handle].enable_port |= (1 << steppers[handle].enable_pin);
   }
 
   return err;
 }
 
+stepper_status_t stepper_getStatus(stepper_descriptor_t handle) {
+  return steppers[handle].status;
+}
+
 stepper_err_t stepper_setSpeed(stepper_descriptor_t handle, uint8_t speed) {
   stepper_err_t err = STEPPER_ERR_NONE;
 
   if (handle >= MAX_STEPPERS
-    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+    || steppers[handle].status == STEPPER_STATUS_AVAILABLE
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
@@ -176,7 +177,7 @@ stepper_err_t stepper_setStepSize(
   stepper_err_t err = STEPPER_ERR_NONE;
 
   if (handle >= MAX_STEPPERS
-    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+    || steppers[handle].status == STEPPER_STATUS_AVAILABLE
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
@@ -221,7 +222,7 @@ stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos) {
   stepper_err_t err = STEPPER_ERR_NONE;
 
   if (handle >= MAX_STEPPERS
-    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+    || steppers[handle].status == STEPPER_STATUS_AVAILABLE
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
@@ -242,7 +243,7 @@ stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir) {
   stepper_err_t err = STEPPER_ERR_NONE;
 
   if (handle >= MAX_STEPPERS
-    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+    || steppers[handle].status == STEPPER_STATUS_AVAILABLE
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
@@ -263,13 +264,18 @@ stepper_dir_t stepper_getDir(stepper_descriptor_t handle) {
 
 stepper_err_t stepper_stepEngage(stepper_descriptor_t handle) {
   stepper_err_t err = STEPPER_ERR_NONE;
-
   if (handle >= MAX_STEPPERS
-    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+    || steppers[handle].status == STEPPER_STATUS_AVAILABLE
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
-    *steppers[handle].step_port |= (1 << steppers[handle].step_pin);
+    // its not an error, but don't set the step bit if the stepper is disabled
+    // or if there is no need for stepping
+    if (steppers[handle].status == STEPPER_STATUS_ENABLED
+      && steppers[handle].pos != steppers[handle].desired_pos
+    ) {
+      *steppers[handle].step_port |= (1 << steppers[handle].step_pin);
+    }
   }
 
   return err;
@@ -279,7 +285,7 @@ stepper_err_t stepper_stepRelease(stepper_descriptor_t handle) {
   stepper_err_t err = STEPPER_ERR_NONE;
 
   if (handle >= MAX_STEPPERS
-    || steppers[handle].status != STEPPER_STATUS_ACTIVE
+    || steppers[handle].status == STEPPER_STATUS_AVAILABLE
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {

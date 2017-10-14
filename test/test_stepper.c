@@ -173,6 +173,11 @@ void test_enable_sets_enable_pin_low(void)
 
   stepper_enable(stepper_handles[handle_index]);
 
+  TEST_ASSERT(
+    stepper_getStatus(stepper_handles[handle_index])
+    == STEPPER_STATUS_ENABLED
+  );
+
   TEST_ASSERT((enable_port & (1 << enable_pin)) == 0);
 }
 
@@ -197,6 +202,11 @@ void test_disable_sets_enable_pin_high(void)
 
   stepper_enable(stepper_handles[handle_index]);
   stepper_disable(stepper_handles[handle_index]);
+
+  TEST_ASSERT(
+    stepper_getStatus(stepper_handles[handle_index])
+    == STEPPER_STATUS_DISABLED
+  );
 
   TEST_ASSERT(enable_port & (1 << enable_pin));
 }
@@ -364,14 +374,37 @@ void test_setDir_returns_error_when_handle_invalid(void)
   );
 }
 
-void test_stepEngage_sets_step_bit(void)
+void test_stepEngage_sets_step_bit_when_enabled_and_needs_stepping(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+  stepper_enable(stepper_handles[handle_index]);
+  stepper_setPos(stepper_handles[handle_index], 1);
+
+  stepper_stepEngage(stepper_handles[handle_index]);
+
+  TEST_ASSERT(step_port & (1 << step_pin));
+}
+
+void test_stepEngage_doesnt_set_step_bit_when_disabled(void)
 {
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
 
   stepper_stepEngage(stepper_handles[handle_index]);
 
-  TEST_ASSERT(step_port & (1 << step_pin));
+  TEST_ASSERT((step_port & (1 << step_pin)) == 0);
+}
+
+void test_stepEngage_doesnt_set_step_bit_when_doesnt_need_stepping(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+  stepper_enable(stepper_handles[handle_index]);
+
+  stepper_stepEngage(stepper_handles[handle_index]);
+
+  TEST_ASSERT((step_port & (1 << step_pin)) == 0);
 }
 
 void test_stepEngage_returns_error_when_handle_invalid(void)
@@ -393,6 +426,7 @@ void test_stepRelease_clears_step_bit(void)
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
 
+  stepper_stepEngage(stepper_handles[handle_index]);
   stepper_stepRelease(stepper_handles[handle_index]);
 
   TEST_ASSERT((step_port & (1 << step_pin)) == 0);

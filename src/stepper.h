@@ -9,8 +9,15 @@ typedef enum stepper_err_t {
   STEPPER_ERR_NONE,
   STEPPER_ERR_NONE_AVAILABLE,
   STEPPER_ERR_HANDLE_INVALID,
-  STEPPER_ERR_POSITION_INVALID
+  STEPPER_ERR_POSITION_INVALID,
+  STEPPER_ERR_STEPPER_DISABLED
 } stepper_err_t;
+
+typedef enum stepper_status_t {
+  STEPPER_STATUS_AVAILABLE,
+  STEPPER_STATUS_DISABLED,
+  STEPPER_STATUS_ENABLED
+} stepper_status_t;
 
 typedef enum stepper_step_size_t {
   STEPPER_STEP_SIZE_FULL,
@@ -66,6 +73,7 @@ stepper_err_t stepper_construct(
 void stepper_destruct(stepper_descriptor_t handle);
 stepper_err_t stepper_enable(stepper_descriptor_t handle);
 stepper_err_t stepper_disable(stepper_descriptor_t handle);
+stepper_status_t stepper_getStatus(stepper_descriptor_t handle);
 stepper_err_t stepper_setSpeed(stepper_descriptor_t handle, uint8_t speed);
 uint8_t stepper_getSpeed(stepper_descriptor_t handle);
 stepper_err_t stepper_setStepSize(
