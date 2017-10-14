@@ -364,7 +364,7 @@ void test_setDir_returns_error_when_handle_invalid(void)
   );
 }
 
-void test_stepEngage_sets_step_pin_high(void)
+void test_stepEngage_sets_step_bit(void)
 {
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
@@ -384,6 +384,28 @@ void test_stepEngage_returns_error_when_handle_invalid(void)
 
   TEST_ASSERT(
     stepper_stepEngage(invalid_handle)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
+
+void test_stepRelease_clears_step_bit(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_stepRelease(stepper_handles[handle_index]);
+
+  TEST_ASSERT((step_port & (1 << step_pin)) == 0);
+}
+
+void test_stepRelease_returns_error_when_handle_invalid(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+  _makeStepper(handle_index);
+
+  TEST_ASSERT(
+    stepper_stepRelease(invalid_handle)
     == STEPPER_ERR_HANDLE_INVALID
   );
 }
