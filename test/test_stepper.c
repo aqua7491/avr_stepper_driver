@@ -295,44 +295,63 @@ void test_setStepSize_throws_error_when_handle_invalid(void)
 
 void test_setPos_sets_desired_position(void)
 {
-  uint8_t position = (uint8_t)(rand() % 199);
+  uint8_t pos_1 = (uint8_t)(rand() % MAX_STEPPER_POS);
+  uint8_t pos_2 = (uint8_t)(rand() % MAX_STEPPER_POS);
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
 
   TEST_ASSERT(
-    stepper_setPos(stepper_handles[handle_index], position)
+    stepper_setPos(stepper_handles[handle_index], pos_1, pos_2)
     == STEPPER_ERR_NONE
   );
 
   TEST_ASSERT(
-    stepper_getDesiredPos(stepper_handles[handle_index])
-    == position
+    stepper_getDesiredPos1(stepper_handles[handle_index])
+    == pos_1
+  );
+
+  TEST_ASSERT(
+    stepper_getDesiredPos2(stepper_handles[handle_index])
+    == pos_2
   );
 }
 
 void test_setPos_returns_error_when_handle_invalid(void)
 {
-  uint8_t position = (uint8_t)(rand() % MAX_STEPPER_POS);
+  uint8_t pos_1 = (uint8_t)(rand() % MAX_STEPPER_POS);
+  uint8_t pos_2 = (uint8_t)(rand() % MAX_STEPPER_POS);
   uint8_t handle_index = 0;
   uint8_t invalid_handle = 3;
   _makeStepper(handle_index);
 
-  stepper_setPos(stepper_handles[handle_index], position);
-
   TEST_ASSERT(
-    stepper_setPos(invalid_handle, position)
+    stepper_setPos(invalid_handle, pos_1, pos_2)
     == STEPPER_ERR_HANDLE_INVALID
   );
 }
 
-void test_setPos_returns_error_when_position_invalid(void)
+void test_setPos_returns_error_when_position_1_invalid(void)
 {
-  uint8_t position = MAX_STEPPER_POS + 1;
+  uint8_t pos_1 = MAX_STEPPER_POS + 1;
+  uint8_t pos_2 = 0;
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
 
   TEST_ASSERT(
-    stepper_setPos(stepper_handles[handle_index], position)
+    stepper_setPos(stepper_handles[handle_index], pos_1, pos_2)
+    == STEPPER_ERR_POSITION_INVALID
+  );
+}
+
+void test_setPos_returns_error_when_position_2_invalid(void)
+{
+  uint8_t pos_1 = 0;
+  uint8_t pos_2 = MAX_STEPPER_POS + 1;
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  TEST_ASSERT(
+    stepper_setPos(stepper_handles[handle_index], pos_1, pos_2)
     == STEPPER_ERR_POSITION_INVALID
   );
 }
@@ -379,7 +398,7 @@ void test_stepEngage_sets_step_bit_when_enabled_and_needs_stepping(void)
   uint8_t handle_index = 0;
   _makeStepper(handle_index);
   stepper_enable(stepper_handles[handle_index]);
-  stepper_setPos(stepper_handles[handle_index], 1);
+  stepper_setPos(stepper_handles[handle_index], 1, 0);
 
   stepper_stepEngage(stepper_handles[handle_index]);
 

@@ -37,7 +37,8 @@ typedef struct stepper_t {
   stepper_status_t status;
   uint8_t speed;
   stepper_step_size_t step_size;
-  uint8_t desired_pos;
+  uint8_t desired_pos_1;
+  uint8_t desired_pos_2;
   uint8_t pos;
   stepper_dir_t dir;
   stepper_mode_t mode;
@@ -105,7 +106,8 @@ stepper_err_t stepper_construct(
 
       steppers[i].status = STEPPER_STATUS_DISABLED;
       steppers[i].speed = config.speed;
-      steppers[i].desired_pos = 0;
+      steppers[i].desired_pos_1 = 0;
+      steppers[i].desired_pos_2 = 0;
       steppers[i].pos = 0;
 
       *handle = i;
@@ -219,7 +221,11 @@ stepper_step_size_t stepper_getStepSize(stepper_descriptor_t handle) {
   return steppers[handle].step_size;
 }
 
-stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos) {
+stepper_err_t stepper_setPos(
+  stepper_descriptor_t handle,
+  uint8_t pos_1,
+  uint8_t pos_2
+) {
   stepper_err_t err = STEPPER_ERR_NONE;
 
   if (handle >= MAX_STEPPERS
@@ -227,8 +233,9 @@ stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos) {
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
-    if (pos <= MAX_STEPPER_POS) {
-      steppers[handle].desired_pos = pos;
+    if (pos_1 <= MAX_STEPPER_POS && pos_2 <= MAX_STEPPER_POS) {
+      steppers[handle].desired_pos_1 = pos_1;
+      steppers[handle].desired_pos_2 = pos_2;
     } else {
       err = STEPPER_ERR_POSITION_INVALID;
     }
@@ -236,8 +243,12 @@ stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos) {
   return err;
 }
 
-uint8_t stepper_getDesiredPos(stepper_descriptor_t handle) {
-  return steppers[handle].desired_pos;
+uint8_t stepper_getDesiredPos1(stepper_descriptor_t handle) {
+  return steppers[handle].desired_pos_1;
+}
+
+uint8_t stepper_getDesiredPos2(stepper_descriptor_t handle) {
+  return steppers[handle].desired_pos_2;
 }
 
 stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir) {
@@ -273,7 +284,7 @@ stepper_err_t stepper_stepEngage(stepper_descriptor_t handle) {
     // its not an error, but don't set the step bit if the stepper is disabled
     // or if there is no need for stepping
     if (steppers[handle].status == STEPPER_STATUS_ENABLED
-      && steppers[handle].pos != steppers[handle].desired_pos
+      && steppers[handle].pos != steppers[handle].desired_pos_1
     ) {
       *steppers[handle].step_port |= (1 << steppers[handle].step_pin);
     }

@@ -87,8 +87,13 @@ stepper_err_t stepper_setStepSize(
   stepper_step_size_t step_size
 );
 stepper_step_size_t stepper_getStepSize(stepper_descriptor_t handle);
-stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos);
-uint8_t stepper_getDesiredPos(stepper_descriptor_t handle);
+stepper_err_t stepper_setPos(
+  stepper_descriptor_t handle,
+  uint8_t pos_1,
+  uint8_t pos_2
+);
+uint8_t stepper_getDesiredPos1(stepper_descriptor_t handle);
+uint8_t stepper_getDesiredPos2(stepper_descriptor_t handle);
 stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir);
 stepper_dir_t stepper_getDir(stepper_descriptor_t handle);
 stepper_err_t stepper_stepEngage(stepper_descriptor_t handle);
