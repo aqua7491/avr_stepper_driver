@@ -40,6 +40,7 @@ typedef struct stepper_t {
   uint8_t desired_pos;
   uint8_t pos;
   stepper_dir_t dir;
+  stepper_mode_t mode;
 } stepper_t;
 /*******************************************************************************
 * Private Data
@@ -293,4 +294,23 @@ stepper_err_t stepper_stepRelease(stepper_descriptor_t handle) {
   }
 
   return err;
+}
+
+stepper_err_t stepper_setMode(stepper_descriptor_t handle, stepper_mode_t mode) {
+  stepper_err_t err = STEPPER_ERR_NONE;
+
+  if (handle >= MAX_STEPPERS
+    || steppers[handle].status == STEPPER_STATUS_AVAILABLE
+  ) {
+    err = STEPPER_ERR_HANDLE_INVALID;
+  } else if (mode != STEPPER_MODE_NORMAL && mode != STEPPER_MODE_OSCILLATE) {
+    err = STEPPER_ERR_OPTION_INVALID;
+  } else {
+    steppers[handle].mode = mode;
+  }
+
+  return err;
+}
+stepper_mode_t stepper_getMode(stepper_descriptor_t handle) {
+  return steppers[handle].mode;
 }

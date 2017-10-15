@@ -444,6 +444,47 @@ void test_stepRelease_returns_error_when_handle_invalid(void)
   );
 }
 
+void test_setMode_sets_operation_mode(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_setMode(stepper_handles[handle_index], STEPPER_MODE_NORMAL);
+  TEST_ASSERT(
+    stepper_getMode(stepper_handles[handle_index])
+    == STEPPER_MODE_NORMAL
+  );
+
+  stepper_setMode(stepper_handles[handle_index], STEPPER_MODE_OSCILLATE);
+  TEST_ASSERT(
+    stepper_getMode(stepper_handles[handle_index])
+    == STEPPER_MODE_OSCILLATE
+  );
+}
+
+void test_setMode_returns_error_when_handle_invalid(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+  _makeStepper(handle_index);
+
+  TEST_ASSERT(
+    stepper_setMode(invalid_handle, STEPPER_MODE_NORMAL)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
+
+void test_setMode_returns_error_when_passed_invalid_mode(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  TEST_ASSERT(
+    stepper_setMode(stepper_handles[handle_index], 10)
+    == STEPPER_ERR_OPTION_INVALID
+  );
+}
+
 /*******************************************************************************
 * Private Function Definitions
 *******************************************************************************/

@@ -10,7 +10,8 @@ typedef enum stepper_err_t {
   STEPPER_ERR_NONE_AVAILABLE,
   STEPPER_ERR_HANDLE_INVALID,
   STEPPER_ERR_POSITION_INVALID,
-  STEPPER_ERR_STEPPER_DISABLED
+  STEPPER_ERR_STEPPER_DISABLED,
+  STEPPER_ERR_OPTION_INVALID
 } stepper_err_t;
 
 typedef enum stepper_status_t {
@@ -31,6 +32,11 @@ typedef enum stepper_dir_t {
   STEPPER_DIR_FORWARD,
   STEPPER_DIR_REVERSE
 } stepper_dir_t;
+
+typedef enum stepper_mode_t {
+  STEPPER_MODE_NORMAL,
+  STEPPER_MODE_OSCILLATE
+} stepper_mode_t;
 
 typedef struct stepper_attr_t {
   uint8_t *dir_port;
@@ -85,8 +91,9 @@ stepper_err_t stepper_setPos(stepper_descriptor_t handle, uint8_t pos);
 uint8_t stepper_getDesiredPos(stepper_descriptor_t handle);
 stepper_err_t stepper_setDir(stepper_descriptor_t handle, stepper_dir_t dir);
 stepper_dir_t stepper_getDir(stepper_descriptor_t handle);
-
 stepper_err_t stepper_stepEngage(stepper_descriptor_t handle);
 stepper_err_t stepper_stepRelease(stepper_descriptor_t handle);
+stepper_err_t stepper_setMode(stepper_descriptor_t handle, stepper_mode_t mode);
+stepper_mode_t stepper_getMode(stepper_descriptor_t handle);
 
 #endif // _STEPPER_H
