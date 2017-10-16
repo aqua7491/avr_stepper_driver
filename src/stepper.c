@@ -85,10 +85,8 @@ stepper_err_t stepper_construct(
 
       *steppers[i].dir_port &= ~(1 << steppers[i].dir_pin);
       *steppers[i].dir_port_ddr |= (1 << steppers[i].dir_pin);
-      // *steppers[i].dir_port_ddr |= steppers[i].dir_pin;
 
       // this pin is active low
-      // *steppers[i].enable_port = 0;
       *steppers[i].enable_port |= (1 << steppers[i].enable_pin);
       *steppers[i].enable_port_ddr |= (1 << steppers[i].enable_pin);
 
