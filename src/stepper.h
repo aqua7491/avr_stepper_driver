@@ -35,7 +35,8 @@ typedef enum stepper_dir_t {
 
 typedef enum stepper_mode_t {
   STEPPER_MODE_NORMAL,
-  STEPPER_MODE_OSCILLATE
+  STEPPER_MODE_OSCILLATE,
+  STEPPER_MODE_CONTINUOUS
 } stepper_mode_t;
 
 typedef struct stepper_attr_t {

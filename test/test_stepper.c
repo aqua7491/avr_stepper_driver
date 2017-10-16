@@ -435,6 +435,18 @@ void test_stepEngage_sets_step_bit_when_enabled_and_needs_stepping(void)
   TEST_ASSERT(step_port & (1 << step_pin));
 }
 
+void test_stepEngage_sets_step_bit_when_enabled_in_continuous_mode(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+  stepper_enable(stepper_handles[handle_index]);
+  stepper_setMode(stepper_handles[handle_index], STEPPER_MODE_CONTINUOUS);
+
+  stepper_stepEngage(stepper_handles[handle_index]);
+
+  TEST_ASSERT(step_port & (1 << step_pin));
+}
+
 void test_stepEngage_increments_position_when_in_forward_direction(void)
 {
   uint8_t handle_index = 0;

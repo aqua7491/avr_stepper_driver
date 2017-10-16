@@ -103,6 +103,7 @@ stepper_err_t stepper_construct(
       *steppers[i].ms3_port_ddr |= (1 << steppers[i].ms3_pin);
 
       steppers[i].status = STEPPER_STATUS_DISABLED;
+      steppers[i].mode = STEPPER_MODE_NORMAL;
       steppers[i].speed = config.speed;
       steppers[i].desired_pos_1 = 0;
       steppers[i].desired_pos_2 = 0;
@@ -286,7 +287,8 @@ stepper_err_t stepper_stepEngage(stepper_descriptor_t handle) {
     // its not an error, but don't set the step bit if the stepper is disabled
     // or if there is no need for stepping
     if (steppers[handle].status == STEPPER_STATUS_ENABLED
-      && steppers[handle].pos != steppers[handle].desired_pos_1
+      && ((steppers[handle].pos != steppers[handle].desired_pos_1)
+      || steppers[handle].mode == STEPPER_MODE_CONTINUOUS)
     ) {
       *steppers[handle].step_port |= (1 << steppers[handle].step_pin);
       if (steppers[handle].dir == STEPPER_DIR_FORWARD) {
@@ -342,7 +344,10 @@ stepper_err_t stepper_setMode(stepper_descriptor_t handle, stepper_mode_t mode) 
     || steppers[handle].status == STEPPER_STATUS_AVAILABLE
   ) {
     err = STEPPER_ERR_HANDLE_INVALID;
-  } else if (mode != STEPPER_MODE_NORMAL && mode != STEPPER_MODE_OSCILLATE) {
+  } else if (mode != STEPPER_MODE_NORMAL
+    && mode != STEPPER_MODE_OSCILLATE
+    && mode != STEPPER_MODE_CONTINUOUS
+  ) {
     err = STEPPER_ERR_OPTION_INVALID;
   } else {
     steppers[handle].mode = mode;
