@@ -312,6 +312,7 @@ stepper_err_t stepper_stepEngage(stepper_descriptor_t handle) {
 
 stepper_err_t stepper_stepRelease(stepper_descriptor_t handle) {
   stepper_err_t err = STEPPER_ERR_NONE;
+  uint8_t temp;
 
   if (handle >= MAX_STEPPERS
     || steppers[handle].status == STEPPER_STATUS_AVAILABLE
@@ -319,6 +320,18 @@ stepper_err_t stepper_stepRelease(stepper_descriptor_t handle) {
     err = STEPPER_ERR_HANDLE_INVALID;
   } else {
     *steppers[handle].step_port &= ~(1 << steppers[handle].step_pin);
+    if (steppers[handle].desired_pos_1 == steppers[handle].pos
+      && steppers[handle].mode == STEPPER_MODE_OSCILLATE
+    ) {
+      temp = steppers[handle].desired_pos_1;
+      steppers[handle].desired_pos_1 = steppers[handle].desired_pos_2;
+      steppers[handle].desired_pos_2 = temp;
+      if (steppers[handle].dir == STEPPER_DIR_REVERSE) {
+        steppers[handle].dir = STEPPER_DIR_FORWARD;
+      } else if (steppers[handle].dir == STEPPER_DIR_FORWARD) {
+        steppers[handle].dir = STEPPER_DIR_REVERSE;
+      }
+    }
   }
 
   return err;

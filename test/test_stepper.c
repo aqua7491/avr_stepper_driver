@@ -393,6 +393,36 @@ void test_setDir_returns_error_when_handle_invalid(void)
   );
 }
 
+void test_setMode_sets_operation_mode(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_setMode(stepper_handles[handle_index], STEPPER_MODE_NORMAL);
+  TEST_ASSERT(
+    stepper_getMode(stepper_handles[handle_index])
+    == STEPPER_MODE_NORMAL
+  );
+
+  stepper_setMode(stepper_handles[handle_index], STEPPER_MODE_OSCILLATE);
+  TEST_ASSERT(
+    stepper_getMode(stepper_handles[handle_index])
+    == STEPPER_MODE_OSCILLATE
+  );
+}
+
+void test_setMode_returns_error_when_handle_invalid(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t invalid_handle = 3;
+  _makeStepper(handle_index);
+
+  TEST_ASSERT(
+    stepper_setMode(invalid_handle, STEPPER_MODE_NORMAL)
+    == STEPPER_ERR_HANDLE_INVALID
+  );
+}
+
 void test_stepEngage_sets_step_bit_when_enabled_and_needs_stepping(void)
 {
   uint8_t handle_index = 0;
@@ -538,54 +568,22 @@ void test_stepRelease_returns_error_when_handle_invalid(void)
 void test_stepRelease_swaps_desired_positions_and_direction(void)
 {
   uint8_t handle_index = 0;
-  _makeStepper(handle_index);
 
+  _makeStepper(handle_index);
+  stepper_setDir(stepper_handles[handle_index], STEPPER_DIR_FORWARD);
+  stepper_setMode(stepper_handles[handle_index], STEPPER_MODE_OSCILLATE);
+  stepper_setPos(stepper_handles[handle_index], 1, 0);
+  stepper_enable(stepper_handles[handle_index]);
   stepper_stepEngage(stepper_handles[handle_index]);
+
   stepper_stepRelease(stepper_handles[handle_index]);
 
-  TEST_ASSERT((step_port & (1 << step_pin)) == 0);
-}
-
-void test_setMode_sets_operation_mode(void)
-{
-  uint8_t handle_index = 0;
-  _makeStepper(handle_index);
-
-  stepper_setMode(stepper_handles[handle_index], STEPPER_MODE_NORMAL);
+  TEST_ASSERT(stepper_getDesiredPos1(stepper_handles[handle_index]) == 0);
   TEST_ASSERT(
-    stepper_getMode(stepper_handles[handle_index])
-    == STEPPER_MODE_NORMAL
-  );
-
-  stepper_setMode(stepper_handles[handle_index], STEPPER_MODE_OSCILLATE);
-  TEST_ASSERT(
-    stepper_getMode(stepper_handles[handle_index])
-    == STEPPER_MODE_OSCILLATE
+    stepper_getDir(stepper_handles[handle_index]) == STEPPER_DIR_REVERSE
   );
 }
 
-void test_setMode_returns_error_when_handle_invalid(void)
-{
-  uint8_t handle_index = 0;
-  uint8_t invalid_handle = 3;
-  _makeStepper(handle_index);
-
-  TEST_ASSERT(
-    stepper_setMode(invalid_handle, STEPPER_MODE_NORMAL)
-    == STEPPER_ERR_HANDLE_INVALID
-  );
-}
-
-// void test_setMode_returns_error_when_passed_invalid_mode(void)
-// {
-//   uint8_t handle_index = 0;
-//   _makeStepper(handle_index);
-//
-//   TEST_ASSERT(
-//     stepper_setMode(stepper_handles[handle_index], 10)
-//     == STEPPER_ERR_OPTION_INVALID
-//   );
-// }
 
 /*******************************************************************************
 * Private Function Definitions
