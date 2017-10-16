@@ -243,6 +243,10 @@ stepper_err_t stepper_setPos(
   return err;
 }
 
+uint8_t stepper_getPos( stepper_descriptor_t handle) {
+  return steppers[handle].pos;
+}
+
 uint8_t stepper_getDesiredPos1(stepper_descriptor_t handle) {
   return steppers[handle].desired_pos_1;
 }
@@ -287,6 +291,19 @@ stepper_err_t stepper_stepEngage(stepper_descriptor_t handle) {
       && steppers[handle].pos != steppers[handle].desired_pos_1
     ) {
       *steppers[handle].step_port |= (1 << steppers[handle].step_pin);
+      if (steppers[handle].dir == STEPPER_DIR_FORWARD) {
+        if (steppers[handle].pos == 199) {
+          steppers[handle].pos = 0;
+        } else {
+          steppers[handle].pos++;
+        }
+      } else if (steppers[handle].dir == STEPPER_DIR_REVERSE) {
+        if (steppers[handle].pos == 0) {
+          steppers[handle].pos = 199;
+        } else {
+          steppers[handle].pos--;
+        }
+      }
     }
   }
 

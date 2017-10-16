@@ -405,6 +405,78 @@ void test_stepEngage_sets_step_bit_when_enabled_and_needs_stepping(void)
   TEST_ASSERT(step_port & (1 << step_pin));
 }
 
+void test_stepEngage_increments_position_when_in_forward_direction(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t original_pos;
+  _makeStepper(handle_index);
+  stepper_setDir(stepper_handles[handle_index], STEPPER_DIR_FORWARD);
+  original_pos = stepper_getPos(stepper_handles[handle_index]);
+  stepper_enable(stepper_handles[handle_index]);
+  stepper_setPos(stepper_handles[handle_index], 1, 0);
+
+  stepper_stepEngage(stepper_handles[handle_index]);
+
+  TEST_ASSERT(
+    stepper_getPos(stepper_handles[handle_index]) == (original_pos + 1)
+  );
+}
+
+void test_stepEngage_increments_position_wrap(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t original_pos;
+  uint8_t i;
+
+  _makeStepper(handle_index);
+  stepper_enable(stepper_handles[handle_index]);
+  // first get the stepper to a position that it needs to wrap
+  stepper_setPos(stepper_handles[handle_index], 1, 0);
+  stepper_stepEngage(stepper_handles[handle_index]);
+  stepper_setPos(stepper_handles[handle_index], 0, 0);
+  for (i=0;i<MAX_STEPPER_POS;i++) {
+    stepper_stepEngage(stepper_handles[handle_index]);
+  }
+
+  TEST_ASSERT(stepper_getPos(stepper_handles[handle_index]) == 0);
+}
+
+void test_stepEngage_decrements_position_when_in_reverse_direction(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t original_pos;
+
+  _makeStepper(handle_index);
+  stepper_enable(stepper_handles[handle_index]);
+  // increment the value once before setting direction to reverse so we don't
+  //  need to test boundary limits here. Also need to set the desired position
+  // to 2 so that the stepper thinks it needs to step twice.
+  stepper_setPos(stepper_handles[handle_index], 2, 0);
+  stepper_stepEngage(stepper_handles[handle_index]);
+  original_pos = stepper_getPos(stepper_handles[handle_index]);
+
+  stepper_setDir(stepper_handles[handle_index], STEPPER_DIR_REVERSE);
+  stepper_stepEngage(stepper_handles[handle_index]);
+
+  TEST_ASSERT(
+    stepper_getPos(stepper_handles[handle_index]) == (original_pos - 1)
+  );
+}
+
+void test_stepEngage_decrements_position_wrap(void)
+{
+  uint8_t handle_index = 0;
+  uint8_t original_pos;
+
+  _makeStepper(handle_index);
+  stepper_enable(stepper_handles[handle_index]);
+  stepper_setPos(stepper_handles[handle_index], 1, 0);
+  stepper_setDir(stepper_handles[handle_index], STEPPER_DIR_REVERSE);
+  stepper_stepEngage(stepper_handles[handle_index]);
+
+  TEST_ASSERT(stepper_getPos(stepper_handles[handle_index]) == 199);
+}
+
 void test_stepEngage_doesnt_set_step_bit_when_disabled(void)
 {
   uint8_t handle_index = 0;
@@ -463,6 +535,17 @@ void test_stepRelease_returns_error_when_handle_invalid(void)
   );
 }
 
+void test_stepRelease_swaps_desired_positions_and_direction(void)
+{
+  uint8_t handle_index = 0;
+  _makeStepper(handle_index);
+
+  stepper_stepEngage(stepper_handles[handle_index]);
+  stepper_stepRelease(stepper_handles[handle_index]);
+
+  TEST_ASSERT((step_port & (1 << step_pin)) == 0);
+}
+
 void test_setMode_sets_operation_mode(void)
 {
   uint8_t handle_index = 0;
@@ -493,16 +576,16 @@ void test_setMode_returns_error_when_handle_invalid(void)
   );
 }
 
-void test_setMode_returns_error_when_passed_invalid_mode(void)
-{
-  uint8_t handle_index = 0;
-  _makeStepper(handle_index);
-
-  TEST_ASSERT(
-    stepper_setMode(stepper_handles[handle_index], 10)
-    == STEPPER_ERR_OPTION_INVALID
-  );
-}
+// void test_setMode_returns_error_when_passed_invalid_mode(void)
+// {
+//   uint8_t handle_index = 0;
+//   _makeStepper(handle_index);
+//
+//   TEST_ASSERT(
+//     stepper_setMode(stepper_handles[handle_index], 10)
+//     == STEPPER_ERR_OPTION_INVALID
+//   );
+// }
 
 /*******************************************************************************
 * Private Function Definitions
